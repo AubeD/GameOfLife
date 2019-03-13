@@ -2,6 +2,9 @@
 #define MAINWINDOW_H
 #include <QDialog>
 #include <QPainter>
+#include <QPushButton>
+
+
 
 #include <QMainWindow>
 
@@ -21,9 +24,14 @@ private:
     Ui::MainWindow *ui;
     QPainter *painter;
     QRect boardRects[50*50];
+    int grille[50][50];
+    QPushButton *btnStart;
 
-    void paintEvent(QPaintEvent *e, int grille[50][50]);
-    void mousePressEvent(QMouseEvent *e, int grille[50][50]);
+    void paintEvent(QPaintEvent *e);
+    void mousePressEvent(QMouseEvent *e);
+private slots:
+    void start();
+
 };
 
 #endif // MAINWINDOW_H
