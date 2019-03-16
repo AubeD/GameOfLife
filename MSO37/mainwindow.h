@@ -24,8 +24,8 @@ private:
     Ui::MainWindow *ui;
     QPainter *painter;
     QRect boardRects[50*50];
-    int grille[50][50];
     QPushButton *btnStart;
+    int grille[50][50];
 
     void paintEvent(QPaintEvent *e);
     void mousePressEvent(QMouseEvent *e);

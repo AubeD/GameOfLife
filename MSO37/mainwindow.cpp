@@ -1,16 +1,57 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "main.cpp"
+//#include "main.cpp"
 #include <QPainter>
 #include <QMouseEvent>
 #include <QMessageBox>
 #include <QPushButton>
 #include <iostream>
 #include <thread>
+//#include <mutex>
+
+//using std::mutex;
+
+
 #define NUM_THREADS 4
+
+//mutex lock1;
+//mutex lock2;
+//mutex lock3;
+//mutex lock4;
+
+//int grille[50][50];
 
 int countneig(int i,int j, int width, int height, int grille[50][50]){
     int count = 0;
+//    if (i == 24 || i == 25 || j == 24 || j ==25){
+//        if (i == 24 && j<25){
+//            lock1.lock();//lock 1
+//        }
+//        else if(i == 24){
+//            lock3.lock();//lock 3
+//        }
+//        if (i == 25 && j<25){
+//            lock2.lock();//lock 2
+//        }
+//        else if (i == 25){
+//            lock4.lock();//lock 4
+//        }
+
+//        if (j == 24 && i<25){
+//            lock1.lock();//lock 1
+//        }
+//        else if(j == 24){
+//            lock2.lock();//lock 2
+//        }
+//        if (j == 25 && i<25){
+//            lock3.lock();//lock 3
+//        }
+//        else if (j == 25){
+//            lock1.lock();//lock 4
+//        }
+//    }
+
+
     if (i>0 && j>0){
         count+= grille[i-1][j-1];
     }
@@ -35,6 +76,34 @@ int countneig(int i,int j, int width, int height, int grille[50][50]){
     if (i<width-1){
         count+= grille[i+1][j];
     }
+
+//    if (i == 24 || i == 25 || j == 24 || j ==25){
+//        if (i == 24 && j<25){
+//            lock1.unlock();//lock 1
+//        }
+//        else if(i == 24){
+//            lock3.unlock();//lock 3
+//        }
+//        if (i == 25 && j<25){
+//            lock2.unlock();//lock 2
+//        }
+//        else if (i == 25){
+//            lock4.unlock();//lock 4
+//        }
+
+//        if (j == 24 && i<25){
+//            lock1.unlock();//lock 1
+//        }
+//        else if(j == 24){
+//            lock2.unlock();//lock 2
+//        }
+//        if (j == 25 && i<25){
+//            lock3.unlock();//lock 3
+//        }
+//        else if (j == 25){
+//            lock1.unlock();//lock 4
+//        }
+//    }
 return(count);
 }
 
@@ -91,32 +160,52 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
-int[25][25] calcul(int debut_i,int debut_j, grille[25][25]){
-    int grille2[50][50];
-    for(int i = 0; i < 50; i++){
-        std::cout<<i<<std::endl;
-        for(int j = 0; j < 50; j++){
-            grille2[i][j] = apply_rules(countneig(i,j,50,50,grille),grille[i][j]);
+
+
+void calcul(int debut_i,int debut_j, int ssgrille[25][25], int num_thread, int grilletot[50][50]){
+
+    for(int i = debut_i; i < 25+debut_i; i++){
+        for(int j = debut_j; j < 25+debut_j; j++){
+            ssgrille[i-debut_i][j-debut_j] =
+                    apply_rules(countneig(i,j,50,50,grilletot),ssgrille[i][j]);
         }
     }
+
+    for(int i = debut_i; i < 25+debut_i; i++){
+        for(int j = debut_j; j < 25+debut_j; j++){
+            grilletot[i][j] =  ssgrille[i-debut_i][j-debut_j];
+        }
+    }
+
+
+    // copier le 1/4
 }
+
 
 void MainWindow::start()
 {
-    std::thread Ids[NUM_THREADS];
+    //std::thread Ids[NUM_THREADS];
 
-    int grille2[50][50];
-    for(int i = 0; i < 50; i++){
-        std::cout<<i<<std::endl;
-        for(int j = 0; j < 50; j++){
-            grille2[i][j] = apply_rules(countneig(i,j,50,50,grille),grille[i][j]);
+
+    int ssgrille1[25][25];
+    int ssgrille2[25][25];
+    int ssgrille3[25][25];
+    int ssgrille4[25][25];
+
+    for(int i = 0; i < 25; i++){
+        for(int j = 0; j < 25; j++){
+            ssgrille1[i][j] = grille[i][j];
+            ssgrille2[i][j] = grille[i+25][j];
+            ssgrille3[i][j] = grille[i][j+25];
+            ssgrille4[i][j] = grille[i+25][j+25];
         }
     }
-    for(int i = 0; i < 50; i++){
-        for(int j = 0; j < 50; j++){
-            grille[i][j] = grille2[i][j];
-        }
-    }
+
+    std::thread vin(calcul,0,0,ssgrille1, grille);
+    std::thread france(calcul,25,0,ssgrille2, grille);
+    std::thread baguette(calcul,0,25,ssgrille3, grille);
+    std::thread fromage(calcul,25,25,ssgrille4, grille);
+
     QWidget::update();
 }
 
